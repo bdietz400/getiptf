@@ -7,6 +7,9 @@
 # 
 #  use the first email from IBM for the first 4 "parms"
 #  and the last email wit hthe PWD for the given sftp user
+#
+# i used the "mirror" option in lftp so I could have a couple of concurrent 
+# downloads.  adjust as necessary
 
 
 
