@@ -4,6 +4,9 @@
 #  *** work in progress***
 #  for now install in directory /ptfs
 # make sure rpm pile is install plus "lftp"
+# 
+#  use the first email from IBM for the first 4 "parms"
+#  and the last email wit hthe PWD for the given sftp user
 
 
 
