@@ -1,0 +1,103 @@
+pgm parm(&u &p &s &d &l &sh_Path &sh_name)
+/* ./get_from_FIX_Central.sh           */
+/*    -u BI3CX0 -p 9tX7N3525b1bXG6     */
+/*    -s delivery01-bld.dhe.ibm.com    */
+/*    -d new_inav/C                    */
+/*    -l /ptfs/individual              */
+
+/* CRTBNDCL PGM(YOURLIB/getfrmfixc) +
+   SRCSTMF('/ptfs/getfrmfixc.clle') +
+   OPTION(*EVENTF) DBGVIEW(*LIST)   +
+   text('Get PTFs from IBM Fix Central (GETFRMFIX)') */
+
+dclprcopt DFTACTGRP(*NO) ACTGRP(*NEW) +
+text('Get PTFs from IBM Fix Central (GETFRMFIX)')
+
+dcl &u *char 12
+dcl &p *char 25
+dcl &s *char 50
+dcl &d *char 50
+dcl &l *char 128
+dcl &sh_Path *char 128
+dcl &sh_name *char 50
+
+dcl &sh_script *char 500
+
+DCL VAR(&PATHNULTRM) TYPE(*CHAR) LEN(513)
+DCL VAR(&MODE) TYPE(*INT) LEN(4)
+DCL VAR(&RC) TYPE(*INT)
+DCL VAR(&NULL) TYPE(*CHAR) LEN(1) VALUE(X'00')
+
+
+SELECT
+WHEN CONd(&s = ' ') THEN(do)
+ SNDPGMMSG MSGID(CPF9898)     +                    
+          MSGF(QCPFMSG)        +                  
+          MSGDTA('Remote Server cannot be blank') +
+          MSGTYPE(*ESCAPE)                       
+    return
+    enddo
+WHEN CONd(&d = ' ') THEN(do)
+ SNDPGMMSG MSGID(CPF9898)                         +
+          MSGF(QCPFMSG)                          +
+          MSGDTA('Remote directory cannot be blank') +
+          MSGTYPE(*ESCAPE)                       
+    return
+    enddo
+WHEN CONd(&l = ' ') THEN(do)
+ SNDPGMMSG MSGID(CPF9898)                         +
+          MSGF(QCPFMSG)                          +
+          MSGDTA('Local path should not be blank') +
+          MSGTYPE(*ESCAPE)                       
+    return        
+  ENDDO
+ENDSELECT
+
+ CALLSUBR   SUBR(CHKfile) RTNVAL(&RC) 
+ovrprtf QSYSPRT hold(*YES)
+DSPLNK OBJ('/QOpenSys/pkgs/bin/bash') OUTPUT(*PRINT)
+monmsg CPFA0A9 exec(do)
+ SNDPGMMSG MSGID(CPF9898)                         +
+          MSGF(QCPFMSG)                          +
+          MSGDTA('/QOpenSys/pkgs/bin/bash - not found') +
+          MSGTYPE(*ESCAPE)                       
+    return        
+  ENDDO
+  DLTSPLF FILE(QSYSPRT) JOB(*) SPLNBR(*LAST) + 
+          SELECT(*CURRENT *ALL *ALL DSPLNK)
+          monmsg cpf0000
+
+DSPLNK OBJ('/QOpenSys/pkgs/bin/lftp') OUTPUT(*PRINT)
+monmsg CPFA0A9 exec(do)
+ SNDPGMMSG MSGID(CPF9898)                         +
+          MSGF(QCPFMSG)                          +
+          MSGDTA('/QOpenSys/pkgs/bin/lftp - not found') +
+          MSGTYPE(*ESCAPE)                       
+    return        
+  ENDDO
+  DLTSPLF FILE(QSYSPRT) JOB(*) SPLNBR(*LAST) + 
+          SELECT(*CURRENT *ALL *ALL DSPLNK)
+          monmsg cpf0000
+dltovr QSYSPRT
+chgvar &sh_script +
+ ('cd ' || %trim(&sh_path) || ' && ' || './' || %trim(&sh_name) || +
+ ' -u ' || %trim(&u) || ' -p ' || %trim(&p) || ' -s ' || %trim(&s) +
+        || ' -d ' || %trim(&d) || ' -l ' || %trim(&l) )
+
+qsh cmd(&sh_script)
+/* could put some error trapping here */
+end: return
+
+chkifs: SUbr SUBR(chkfile)
+/* Call IBM API. */
+/* &RTNVAL: 0=file exists, -1=error occurred. */
+CHGVAR VAR(&PATHNULTRM) VALUE('/QOpenSys/pkgs/bin/bash' || &NULL)
+
+CALLPRC PRC('access') PARM((&PATHNULTRM *BYREF) +
+           (&MODE *BYVAL)) RTNVAL(&RTNVAL)
+
+/* Interpret error. Errno will be CPExxxx where */
+/* xxxx is the number returned by the __errno API. */
+
+ENDSUBR
+endpgm
