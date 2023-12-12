@@ -28,6 +28,9 @@ new version that uses lftp from opensource packages for the download.
 
 let me know if you have issues.
 
+get_from_FIX_Central.sh
+getfrmfixc.clle
+getfrmfix.cmd
 
 ### Documentation ###
 
