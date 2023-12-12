@@ -21,7 +21,15 @@ multiple GETiPTF jobs to download the files in "parallel"
 
 this version will not work on versions previous to V6.1
 
-http://bryandietz.us/getiptf.html   (V5r2+ version) 
+http://bdietz.ddns.net:81/getiptf.html   (V5r2+ version) 
+##########################################################################################
+
+new version that uses lftp from opensource packages for the download.
+
+let me know if you have issues.
+
 
 ### Documentation ###
+
+
 
