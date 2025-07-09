@@ -32,7 +32,7 @@ echo "User Password   : ${u_pwd}"
 echo "Remote Server   : ${rmt_srv}"
 echo "Remote Directory: ${rmt_dir}"
 echo "Local Directory : ${lcl_dir}"
-echo "Log file        :" $log_file
+echo "Log file        :" $log_file.txt
 echo "-----------------"
 
 /QOpenSys/pkgs/bin/lftp -c "set sftp:auto-confirm on; set xfer:clobber on; \
@@ -42,4 +42,5 @@ open -u $s_user,$u_pwd \
 sftp://$rmt_srv;lcd $lcl_dir;\
 cd $rmt_dir;ls;mirror --verbose --use-pget-n=2 -c --verbose . $lcl_dir"  
 ls -la $lcl_dir
-echo "The log file is here -> " $log_file
+mv $log_file $log_file.txt 
+echo "The log file is here -> " $log_file.txt
